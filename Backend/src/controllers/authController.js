@@ -42,10 +42,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Check if the user has a password (they might have been created before the auth system)
     if (!user.password) {
-      // If the user doesn't have a password set, let's treat it as invalid for security
-      // unless we want to allow passwordless login for legacy users, but we shouldn't.
       return res.status(401).json({ message: 'Account needs setup. Please contact administrator.' });
     }
 
@@ -60,9 +57,11 @@ export const login = async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
+    // Update last login — non-critical, ignore errors
+    try {
+      user.lastLogin = new Date();
+      await user.save();
+    } catch (_) {}
 
     res.json({
       token,
