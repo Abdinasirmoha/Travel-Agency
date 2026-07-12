@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+import { API_BASE_URL as API } from './config/api';
 
 async function parseJsonResponse(res) {
   const text = await res.text();
