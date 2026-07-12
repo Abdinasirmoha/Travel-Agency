@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, ChevronDown, Plane, Globe, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config/api';
 
 const ROLES = ['Staff', 'Manager', 'Super Admin'];
 
@@ -25,7 +26,7 @@ export default function Login() {
  setError('');
 
  try {
- const res = await fetch('http://localhost:5001/api/auth/login', {
+ const res = await fetch(`${API_BASE_URL}/auth/login`, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ email, password }),

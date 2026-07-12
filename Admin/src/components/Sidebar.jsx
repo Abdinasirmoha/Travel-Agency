@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api';
 import { 
   LayoutDashboard, 
   Users, 
@@ -97,8 +98,7 @@ export default function Sidebar() {
         const token = sessionStorage.getItem('elite_token');
         if (!token) return;
         
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
-        const res = await fetch(`${API_URL}/notifications`, {
+        const res = await fetch(`${API_BASE_URL}/notifications`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

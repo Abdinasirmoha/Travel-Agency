@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5001/api';
+import { API_BASE_URL } from './config/api';
 
 export const fetchDashboardStats = async () => {
   const res = await fetch(`${API_BASE_URL}/dashboard-stats`);

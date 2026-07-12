@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell, CheckCircle, Package, Plane, FileText, Briefcase, Info } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+import { API_BASE_URL } from '../config/api';
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -10,7 +9,7 @@ export default function Notifications() {
   const fetchNotifications = async () => {
     try {
       const token = sessionStorage.getItem('elite_token');
-      const res = await fetch(`${API_URL}/notifications`, {
+      const res = await fetch(`${API_BASE_URL}/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -36,7 +35,7 @@ export default function Notifications() {
   const markAsRead = async (id) => {
     try {
       const token = sessionStorage.getItem('elite_token');
-      await fetch(`${API_URL}/notifications/${id}/read`, { 
+      await fetch(`${API_BASE_URL}/notifications/${id}/read`, { 
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -49,7 +48,7 @@ export default function Notifications() {
   const markAllAsRead = async () => {
     try {
       const token = sessionStorage.getItem('elite_token');
-      await fetch(`${API_URL}/notifications/read-all`, { 
+      await fetch(`${API_BASE_URL}/notifications/read-all`, { 
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` }
       });
