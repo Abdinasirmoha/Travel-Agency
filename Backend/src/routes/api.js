@@ -612,10 +612,6 @@ router.post('/payments', async (req, res) => {
     let savedPayment;
 
     if (paymentMethod === 'Mobile Money') {
-      if (!process.env.WAAFIPAY_API_URL || !process.env.WAAFIPAY_MERCHANT_UID) {
-        return res.status(500).json({ message: 'Server Configuration Error: WaafiPay environment variables are missing on Render. Please add WAAFIPAY_API_URL, WAAFIPAY_MERCHANT_UID, etc. to your Render Environment Variables.' });
-      }
-
       // ── Mobile Money: go through WaafiPay ──────────────────────────────────
       if (!rawAccountNo) {
         return res.status(400).json({ message: 'Mobile Money Phone Number is required.' });
@@ -636,6 +632,11 @@ router.post('/payments', async (req, res) => {
       const referenceId = reference || `REF-${Date.now()}`;
       const invoiceId   = req.body.invoice ? String(req.body.invoice) : `INV-${Date.now()}`;
 
+      const WAAFIPAY_URL         = process.env.WAAFIPAY_API_URL      || 'https://api.waafipay.net/asm';
+      const WAAFIPAY_MERCHANT    = process.env.WAAFIPAY_MERCHANT_UID || 'M0910291';
+      const WAAFIPAY_USER_ID     = process.env.WAAFIPAY_API_USER_ID  || '1000416';
+      const WAAFIPAY_KEY         = process.env.WAAFIPAY_API_KEY      || 'API-675418888AHX';
+
       const waafiPayload = {
         schemaVersion: "1.0",
         requestId: `${Date.now()}`,
@@ -643,9 +644,9 @@ router.post('/payments', async (req, res) => {
         channelName: "WEB",
         serviceName: "API_PURCHASE",
         serviceParams: {
-          merchantUid:   process.env.WAAFIPAY_MERCHANT_UID,
-          apiUserId:     process.env.WAAFIPAY_API_USER_ID,
-          apiKey:        process.env.WAAFIPAY_API_KEY,
+          merchantUid:   WAAFIPAY_MERCHANT,
+          apiUserId:     WAAFIPAY_USER_ID,
+          apiKey:        WAAFIPAY_KEY,
           paymentMethod: "mwallet_account",
           payerInfo: { accountNo: payerAccountNo },
           transactionInfo: {
@@ -664,7 +665,7 @@ router.post('/payments', async (req, res) => {
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
       try {
-        const waafiRes  = await fetch(process.env.WAAFIPAY_API_URL, { 
+        const waafiRes  = await fetch(WAAFIPAY_URL, { 
           method: 'POST', 
           headers: { 
             'Content-Type': 'application/json',
