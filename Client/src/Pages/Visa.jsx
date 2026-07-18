@@ -96,11 +96,36 @@ export default function Visa() {
   const [selected, setSelected] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
 
-  const visaImages = [
-    '/images/visa_europe.jpg',
-    '/images/visa_asia.jpg',
-    '/images/visa_middle_east.jpg'
-  ];
+  // Smart image matcher — picks the right image based on visa type name
+  const getVisaImage = (visaName = '') => {
+    const name = visaName.toLowerCase();
+    if (name.includes('student') || name.includes('study') || name.includes('education'))
+      return '/images/student_visa.jpg';
+    if (name.includes('work') || name.includes('employ') || name.includes('labor') || name.includes('labour'))
+      return '/images/work_visa.jpg';
+    if (name.includes('medical') || name.includes('health') || name.includes('treatment'))
+      return '/images/medical_visa.jpg';
+    if (name.includes('family') || name.includes('spouse') || name.includes('dependent') || name.includes('reunion'))
+      return '/images/family_visa.jpg';
+    if (name.includes('tourist') || name.includes('tourism') || name.includes('visit') || name.includes('holiday') || name.includes('vacation'))
+      return '/images/visa_tourist.jpg';
+    if (name.includes('business') || name.includes('investor') || name.includes('trade') || name.includes('commerce'))
+      return '/images/visa_business.jpg';
+    if (name.includes('transit') || name.includes('stopover') || name.includes('layover'))
+      return '/images/visa_transit.jpg';
+    if (name.includes('religious') || name.includes('hajj') || name.includes('umrah') || name.includes('pilgrimage'))
+      return '/images/visa_religious.jpg';
+    if (name.includes('diplomatic') || name.includes('official') || name.includes('government'))
+      return '/images/visa_diplomatic.jpg';
+    if (name.includes('asia') || name.includes('china') || name.includes('japan') || name.includes('korea'))
+      return '/images/visa_asia.jpg';
+    if (name.includes('europe') || name.includes('schengen') || name.includes('uk') || name.includes('france'))
+      return '/images/visa_europe.jpg';
+    if (name.includes('middle east') || name.includes('gulf') || name.includes('uae') || name.includes('saudi'))
+      return '/images/visa_middle_east.jpg';
+    // Default fallback
+    return '/images/visa_bg_1.jpg';
+  };
 
   useEffect(() => {
     getVisaTypes()
@@ -193,10 +218,10 @@ export default function Visa() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filtered.map((visa, index) => (
+              {filtered.map((visa) => (
                 <div key={visa._id} className="bg-white rounded-2xl shadow-sm border-2 border-slate-100 hover:border-primary-200 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden group">
                   <div className="relative p-6 overflow-hidden min-h-[180px] flex flex-col justify-end">
-                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${visaImages[index % visaImages.length]}')` }} />
+                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${getVisaImage(visa.name)}')` }} />
                     <div className="absolute inset-0 bg-slate-900/60 group-hover:bg-slate-900/40 transition-colors duration-500" />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
                     
