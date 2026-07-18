@@ -669,7 +669,7 @@ router.post('/payments', async (req, res) => {
         if (code === '5300' || m.includes('timeout') || m.includes('expired'))
           return 'Payment request timed out. Please try again and approve the request on your phone within 60 seconds.';
         if (code === '5200' || m.includes('insufficient') || m.includes('balance') || m.includes('haraag'))
-          return 'Insufficient balance. Please top up your mobile wallet and try again.';
+          return "Your wallet doesn't have enough balance. Please top up and try again.";
         if (code === '5400' || m.includes('invalid') || m.includes('account') || m.includes('not found'))
           return 'The mobile wallet number you entered was not found. Please check the number and try again.';
         if (code === '5100' || m.includes('duplicate') || m.includes('already'))
