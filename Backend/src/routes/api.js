@@ -660,6 +660,26 @@ router.post('/payments', async (req, res) => {
 
       console.log('📤 Sending WaafiPay Request:', JSON.stringify(waafiPayload, null, 2));
       let waafiTransactionId = null;
+
+      // Map WaafiPay raw error codes/messages to professional customer-facing messages
+      const friendlyWaafiError = (code, msg = '') => {
+        const m = msg.toLowerCase();
+        if (code === '5310' || m.includes('rejected') || m.includes('cancel')) 
+          return 'Payment was cancelled. Please try again and approve the payment request on your mobile phone.';
+        if (code === '5300' || m.includes('timeout') || m.includes('expired'))
+          return 'Payment request timed out. Please try again and approve the request on your phone within 60 seconds.';
+        if (code === '5200' || m.includes('insufficient') || m.includes('balance') || m.includes('haraag'))
+          return 'Insufficient balance. Please top up your mobile wallet and try again.';
+        if (code === '5400' || m.includes('invalid') || m.includes('account') || m.includes('not found'))
+          return 'The mobile wallet number you entered was not found. Please check the number and try again.';
+        if (code === '5100' || m.includes('duplicate') || m.includes('already'))
+          return 'This payment has already been processed. Please check your payment history.';
+        if (code === '5500' || m.includes('limit'))
+          return 'You have exceeded your daily transaction limit. Please try a smaller amount or try again tomorrow.';
+        if (m.includes('pin') || m.includes('wrong pin') || m.includes('incorrect'))
+          return 'Incorrect PIN entered. Please try again with the correct PIN.';
+        return 'Payment could not be completed. Please check your mobile wallet and try again.';
+      };
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
@@ -679,17 +699,21 @@ router.post('/payments', async (req, res) => {
         const waafiData = await waafiRes.json();
         console.log('📥 WaafiPay Response:', JSON.stringify(waafiData, null, 2));
         if (waafiData.responseCode !== '2001') {
-          return res.status(400).json({ message: `WaafiPay: ${waafiData.responseMsg || waafiData.errorCode || 'Transaction Failed. Please try again.'}` });
+          const friendlyMsg = friendlyWaafiError(waafiData.responseCode, waafiData.responseMsg);
+          return res.status(400).json({ message: friendlyMsg });
         }
         if (waafiData.params?.transactionId) waafiTransactionId = waafiData.params.transactionId;
       } catch (err) {
         clearTimeout(timeoutId);
         console.error('WaafiPay API Request Failed:', err);
+        const isTimeout = err.name === 'AbortError' || (err.message || '').toLowerCase().includes('abort');
         return res.status(500).json({ 
-          message: `Payment Gateway unreachable. Please try again. Details: ${err.message || 'Unknown error'}`,
-          errorDetails: err.message || 'Unknown error'
+          message: isTimeout
+            ? 'The payment request timed out. Please check your mobile wallet and try again.'
+            : 'We could not connect to the payment gateway. Please check your internet connection and try again.'
         });
       }
+
 
       const newPayment = new Payment({
         receiptNumber: req.body.receiptNumber,
