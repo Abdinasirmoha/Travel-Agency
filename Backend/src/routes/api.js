@@ -592,6 +592,10 @@ router.post('/payments', async (req, res) => {
     let savedPayment;
 
     if (paymentMethod === 'Mobile Money') {
+      if (!process.env.WAAFIPAY_API_URL || !process.env.WAAFIPAY_MERCHANT_UID) {
+        return res.status(500).json({ message: 'Server Configuration Error: WaafiPay environment variables are missing on Render. Please add WAAFIPAY_API_URL, WAAFIPAY_MERCHANT_UID, etc. to your Render Environment Variables.' });
+      }
+
       // ── Mobile Money: go through WaafiPay ──────────────────────────────────
       if (!rawAccountNo) {
         return res.status(400).json({ message: 'Mobile Money Phone Number is required.' });
@@ -661,7 +665,7 @@ router.post('/payments', async (req, res) => {
         clearTimeout(timeoutId);
         console.error('WaafiPay API Request Failed:', err);
         return res.status(500).json({ 
-          message: 'Payment Gateway unreachable. Please try again.',
+          message: `Payment Gateway unreachable. Please try again. Details: ${err.message || 'Unknown error'}`,
           errorDetails: err.message || 'Unknown error'
         });
       }
