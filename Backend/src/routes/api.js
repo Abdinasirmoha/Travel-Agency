@@ -635,6 +635,10 @@ router.post('/payments', async (req, res) => {
 
       console.log('📤 Sending WaafiPay Request:', JSON.stringify(waafiPayload, null, 2));
       let waafiTransactionId = null;
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
       try {
         const waafiRes  = await fetch(process.env.WAAFIPAY_API_URL, { 
           method: 'POST', 
@@ -642,8 +646,11 @@ router.post('/payments', async (req, res) => {
             'Content-Type': 'application/json',
             'User-Agent': 'EliteTravel-App/1.0 (Node.js)'
           }, 
-          body: JSON.stringify(waafiPayload) 
+          body: JSON.stringify(waafiPayload),
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
+        
         const waafiData = await waafiRes.json();
         console.log('📥 WaafiPay Response:', JSON.stringify(waafiData, null, 2));
         if (waafiData.responseCode !== '2001') {
@@ -651,8 +658,12 @@ router.post('/payments', async (req, res) => {
         }
         if (waafiData.params?.transactionId) waafiTransactionId = waafiData.params.transactionId;
       } catch (err) {
+        clearTimeout(timeoutId);
         console.error('WaafiPay API Request Failed:', err);
-        return res.status(500).json({ message: 'Payment Gateway unreachable. Please try again.' });
+        return res.status(500).json({ 
+          message: 'Payment Gateway unreachable. Please try again.',
+          errorDetails: err.message || 'Unknown error'
+        });
       }
 
       const newPayment = new Payment({
