@@ -18,6 +18,26 @@ import Notification from '../models/Notification.js';
 
 const router = express.Router();
 
+// ── Diagnostic: Check which env vars are loaded (safe - shows present/missing only) ─
+router.get('/check-env', (req, res) => {
+  const vars = [
+    'WAAFIPAY_API_URL',
+    'WAAFIPAY_MERCHANT_UID',
+    'WAAFIPAY_API_USER_ID',
+    'WAAFIPAY_API_KEY',
+    'STRIPE_SECRET_KEY',
+    'MONGODB_URI',
+    'JWT_SECRET',
+    'SMTP_HOST',
+    'SMTP_USER',
+  ];
+  const result = {};
+  vars.forEach(v => {
+    result[v] = process.env[v] ? '✅ SET' : '❌ MISSING';
+  });
+  res.json(result);
+});
+
 // Dashboard Stats
 router.get('/dashboard-stats', async (req, res) => {
   try {
