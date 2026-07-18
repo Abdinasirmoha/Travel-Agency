@@ -636,7 +636,14 @@ router.post('/payments', async (req, res) => {
       console.log('📤 Sending WaafiPay Request:', JSON.stringify(waafiPayload, null, 2));
       let waafiTransactionId = null;
       try {
-        const waafiRes  = await fetch(process.env.WAAFIPAY_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(waafiPayload) });
+        const waafiRes  = await fetch(process.env.WAAFIPAY_API_URL, { 
+          method: 'POST', 
+          headers: { 
+            'Content-Type': 'application/json',
+            'User-Agent': 'EliteTravel-App/1.0 (Node.js)'
+          }, 
+          body: JSON.stringify(waafiPayload) 
+        });
         const waafiData = await waafiRes.json();
         console.log('📥 WaafiPay Response:', JSON.stringify(waafiData, null, 2));
         if (waafiData.responseCode !== '2001') {

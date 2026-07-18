@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
 dotenv.config({ override: true });
 
 const router = express.Router();
-console.log("Loaded Stripe Key:", process.env.STRIPE_SECRET_KEY);
+// console.log("Loaded Stripe Key:", process.env.STRIPE_SECRET_KEY);
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // @route   POST /api/stripe/create-payment-intent
