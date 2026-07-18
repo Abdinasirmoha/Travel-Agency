@@ -55,7 +55,7 @@ export default function Login() {
  justifyContent: 'center',
  padding: '2rem',
  }}>
- <div style={{ width: '100%', maxWidth: '420px' }}>
+ <div style={{ width: '100%', maxWidth: '600px', padding: '40px', background: 'white', border: '2px solid #e2e8f0', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
 
  {/* Heading */}
  <div style={{ marginBottom: '40px' }}>
