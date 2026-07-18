@@ -268,9 +268,7 @@ export default function Login() {
  </form>
 
  {/* Footer hint */}
- <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '12px', color: '#aab4bf' }}>
- Default admin: <strong style={{ color: '#6b8fa8' }}>admin@elitetravel.com</strong> / <strong style={{ color: '#6b8fa8' }}>admin123</strong>
- </p>
+ 
  </div>
  </div>
 
