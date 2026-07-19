@@ -151,6 +151,7 @@ import { usePermissions } from '../context/AuthContext';
  </td>
  <td className="px-6 py-4 font-medium text-slate-700">{vt.country}</td>
  <td className="px-6 py-4 text-slate-600">{vt.durationDays} Days</td>
+ <td className="px-6 py-4 font-medium text-slate-700">${vt.basePrice}</td>
  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
  <div className="flex items-center justify-end gap-2">
  {hasPermission('Visas', 'edit') && (
