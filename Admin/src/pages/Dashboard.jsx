@@ -1,4 +1,4 @@
-import { Users, Calendar, PlaneTakeoff, DollarSign, TrendingUp, TrendingDown, Plus, FileText } from 'lucide-react';
+import { Users, Calendar, PlaneTakeoff, DollarSign, TrendingUp, TrendingDown, Plus, FileText, Ticket } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { useState, useEffect, useRef } from 'react';
 import { fetchAdvancedDashboardStats, fetchDashboardCharts, fetchPayments, fetchInvoices } from '../api';
@@ -144,14 +144,14 @@ export default function Dashboard() {
  borderColor="border-t-blue-500"
  />
  <StatCard
- icon={PlaneTakeoff}
- label="Flights Booked"
- value={stats?.totalFlights}
- color="text-blue-600"
- bgColor="bg-blue-50"
- trend={-3}
- borderColor="border-t-blue-500"
- />
+    icon={Ticket}
+    label="Total Tickets"
+    value={stats?.totalFlights}
+    color="text-blue-600"
+    bgColor="bg-blue-50"
+    trend={-3}
+    borderColor="border-t-blue-500"
+  />
  <StatCard
  icon={DollarSign}
  label="Total Revenue"
