@@ -38,13 +38,13 @@ function BookingModal({ flight, customer, onClose, onSuccess }) {
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-        <div className="bg-primary-600 px-8 py-6 flex justify-between items-start">
+        <div className="px-8 py-6 flex justify-between items-start bg-blue-600">
           <div>
-            <p className="text-primary-100 text-xs font-bold uppercase tracking-wider mb-1">Flight Booking</p>
+            <p className="text-blue-300 text-xs font-bold uppercase tracking-wider mb-1">Flight Booking</p>
             <h3 className="text-xl font-bold text-white">{flight.airline}</h3>
-            <p className="text-primary-100 text-sm mt-1">Flight #{flight.flightNumber}</p>
+            <p className="text-blue-300 text-sm mt-1">Flight #{flight.flightNumber}</p>
           </div>
-          <button onClick={onClose} className="text-primary-200 hover:text-white transition-colors"><X className="w-6 h-6" /></button>
+          <button onClick={onClose} className="text-blue-300 hover:text-white transition-colors"><X className="w-6 h-6" /></button>
         </div>
         <div className="p-8 space-y-6">
           <div className="bg-slate-50 rounded-xl p-5 border-2 border-slate-100 space-y-3">
@@ -58,7 +58,7 @@ function BookingModal({ flight, customer, onClose, onSuccess }) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-500 font-medium">Price per person</span>
-              <span className="font-bold text-primary-600">${(flight.price || 0).toLocaleString()}</span>
+              <span className="font-bold text-blue-700">${(flight.price || 0).toLocaleString()}</span>
             </div>
           </div>
 
@@ -71,9 +71,9 @@ function BookingModal({ flight, customer, onClose, onSuccess }) {
             </div>
           </div>
 
-          <div className="bg-primary-50 rounded-xl p-5 border-2 border-primary-100 flex justify-between items-center">
+          <div className="rounded-xl p-5 border flex justify-between items-center" style={{ background: '#eff6ff', borderColor: '#bfdbfe' }}>
             <span className="font-bold text-slate-900">Total Amount</span>
-            <span className="text-2xl font-bold text-primary-600">${total.toLocaleString()}</span>
+            <span className="text-2xl font-bold text-blue-700">${total.toLocaleString()}</span>
           </div>
 
           {error && (
@@ -83,7 +83,7 @@ function BookingModal({ flight, customer, onClose, onSuccess }) {
             </div>
           )}
 
-          <button onClick={handleBook} disabled={loading} className="w-full py-4 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all disabled:opacity-60 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+          <button onClick={handleBook} disabled={loading} className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all disabled:opacity-60 flex items-center justify-center gap-2 shadow-sm">
             {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Booking…</> : <><Plane className="w-5 h-5" /> Confirm Booking</>}
           </button>
           <p className="text-center text-xs text-slate-400">Our team will contact you to confirm payment details.</p>
@@ -103,9 +103,12 @@ export default function Flight() {
   const [successMsg, setSuccessMsg] = useState('');
 
   const flightImages = [
-    '/images/flight_mountains.jpg',
-    '/images/flight_ocean.jpg',
-    '/images/flight_sunset.jpg'
+    'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=900&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1569629743817-70d8db6c323b?q=80&w=900&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1559628233-100c798642d7?q=80&w=900&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1483450388369-9ed95738483c?q=80&w=900&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?q=80&w=900&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1540962351504-03099e0a754b?q=80&w=900&auto=format&fit=crop',
   ];
 
   useEffect(() => {
@@ -130,16 +133,25 @@ export default function Flight() {
     <div className="min-h-screen bg-slate-50 font-sans">
       <Navbar />
       <div className="pt-20">
-        {/* Page header */}
-        <div className="bg-primary-600 py-16 px-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        {/* Page header — elite blue */}
+        <div className="relative py-20 px-6 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #1e3a8a 50%, #1d4ed8 100%)' }}>
+          <img
+            src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1800&auto=format&fit=crop"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-10"
+          />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
           <div className="container mx-auto relative z-10">
-            <div className="inline-flex items-center gap-2 bg-white/20 text-white border border-white/30 rounded-full px-4 py-2 text-sm font-semibold mb-4 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 bg-white/10 text-blue-200 border border-blue-400/40 rounded-full px-4 py-2 text-sm font-semibold mb-5 backdrop-blur-sm">
               <Plane className="w-4 h-4" />
               Available Flights
             </div>
-            <h1 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">Browse & Book Flights</h1>
-            <p className="text-primary-100 text-lg font-medium">Find the best routes across our airline network. Book in seconds.</p>
+            <h1 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">
+              Browse &amp; Book{' '}
+              <span className="text-blue-300">Flights</span>
+            </h1>
+            <p className="text-blue-200 text-lg font-medium max-w-xl">Find the best routes across our airline network. Book instantly, fly confidently.</p>
           </div>
         </div>
 
@@ -202,34 +214,40 @@ export default function Flight() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filtered.map((flight, index) => (
-                <div key={flight._id} className="bg-white rounded-2xl shadow-sm border-2 border-slate-100 hover:border-primary-200 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden group">
-                  <div className="relative p-6 overflow-hidden min-h-[220px] flex flex-col justify-end">
-                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${flightImages[index % flightImages.length]}')` }} />
-                    <div className="absolute inset-0 bg-slate-900/60 group-hover:bg-slate-900/40 transition-colors duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
-                    <div className="relative z-10">
-                      <div className="flex justify-between items-start mb-6">
+                <div key={flight._id} className="bg-white rounded-3xl shadow-md border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden group">
+                  {/* Card image — real photo, lightly darkened so it stays clear */}
+                  <div className="relative overflow-hidden min-h-[220px] flex flex-col justify-end">
+                    <img
+                      src={flightImages[index % flightImages.length]}
+                      alt={`${flight.origin} to ${flight.destination}`}
+                      onError={e => { e.target.src = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=900&auto=format&fit=crop'; }}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    {/* Light overlay — keeps image vivid */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/25 to-transparent" />
+                    <div className="relative z-10 p-6">
+                      <div className="flex justify-between items-start mb-5">
                         <div>
-                          <p className="text-white text-xs font-bold uppercase tracking-wider bg-white/20 px-3 py-1.5 rounded-lg inline-block mb-2 border border-white/30 backdrop-blur-sm shadow-sm">{flight.airline}</p>
+                          <p className="text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg inline-block mb-2 backdrop-blur-sm border" style={{ background: 'rgba(59,130,246,0.25)', borderColor: 'rgba(147,197,253,0.5)', color: '#bfdbfe' }}>{flight.airline}</p>
                           <p className="text-white font-black text-2xl drop-shadow-md">#{flight.flightNumber}</p>
                         </div>
-                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-primary-600 group-hover:border-primary-500 group-hover:text-white text-white transition-all duration-300">
-                          <Plane className="w-6 h-6 rotate-45" />
+                        <div className="w-12 h-12 rounded-full backdrop-blur-md flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-blue-600 group-hover:border-blue-400 text-white transition-all duration-300" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                          <Plane className="w-5 h-5 rotate-45" />
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-left w-1/3">
                           <p className="text-white font-black text-3xl drop-shadow-md">{flight.origin || '---'}</p>
-                          <p className="text-slate-300 text-xs mt-1 uppercase tracking-widest font-medium">Origin</p>
+                          <p className="text-blue-200 text-xs mt-1 uppercase tracking-widest font-medium">Origin</p>
                         </div>
-                        <div className="flex-1 flex items-center opacity-80 group-hover:opacity-100 transition-opacity">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
-                          <Plane className="w-5 h-5 text-white mx-2 drop-shadow-md" />
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+                        <div className="flex-1 flex items-center">
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-300/70 to-transparent" />
+                          <Plane className="w-5 h-5 text-blue-300 mx-2 drop-shadow-md" />
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-300/70 to-transparent" />
                         </div>
                         <div className="text-right w-1/3">
                           <p className="text-white font-black text-3xl drop-shadow-md">{flight.destination || '---'}</p>
-                          <p className="text-slate-300 text-xs mt-1 uppercase tracking-widest font-medium">Dest</p>
+                          <p className="text-blue-200 text-xs mt-1 uppercase tracking-widest font-medium">Dest</p>
                         </div>
                       </div>
                     </div>
@@ -264,7 +282,7 @@ export default function Flight() {
                       </div>
                       <button
                         onClick={() => setSelected(flight)}
-                        className="px-6 py-3 bg-primary-600 text-white text-sm font-bold rounded-xl hover:bg-primary-700 transition-all shadow-md shadow-primary-600/20 hover:shadow-lg hover:-translate-y-0.5"
+                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-2xl transition-all shadow-sm hover:-translate-y-0.5"
                       >
                         Book Now
                       </button>

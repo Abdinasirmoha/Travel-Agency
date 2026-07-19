@@ -682,7 +682,7 @@ router.post('/payments', async (req, res) => {
       };
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout to allow user to enter PIN
 
       try {
         const waafiRes  = await fetch(WAAFIPAY_URL, { 
@@ -725,21 +725,16 @@ router.post('/payments', async (req, res) => {
         payerAccountNo,
         reference:     referenceId,
         currency:      currency || 'USD',
-        status:        'Pending',
+        status:        'Completed', // Synchronous completion
         waafiTransactionId
       });
       savedPayment = await newPayment.save();
       console.log(`✅ Payment saved with status: ${savedPayment.status} | ref: ${savedPayment.reference}`);
 
-      // Simulate webhook in dev (7 second delay)
-      setTimeout(async () => {
-        try {
-          const webhookUrl = `http://localhost:${process.env.PORT || 5001}/api/waafipay/webhook`;
-          console.log(`⏱️  Simulating WaafiPay webhook in 7s → ${webhookUrl}`);
-          const simRes  = await fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ responseCode: '2001', merchantUid: process.env.WAAFIPAY_MERCHANT_UID, params: { referenceId: savedPayment.reference, state: 'APPROVED', transactionId: waafiTransactionId || `TXN-${Date.now()}` } }) });
-          console.log('🔔 Simulated Webhook Response:', await simRes.json());
-        } catch(e) { console.error('Simulated webhook failed:', e); }
-      }, 7000);
+      // Auto-sync invoice immediately since WaafiPay is synchronous
+      if (savedPayment.invoice) {
+        await syncInvoice(savedPayment.invoice);
+      }
 
     } else {
       // ── Cash / Bank Transfer / Credit Card — admin direct payment ──────────

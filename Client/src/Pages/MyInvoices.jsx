@@ -309,8 +309,20 @@ export default function MyInvoices() {
       <Navbar />
 
       {/* ── Hero Header ─────────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 pt-28 pb-16 relative overflow-hidden shadow-sm">
-        <div className="absolute inset-0 pointer-events-none">
+      <section className="relative pt-32 pb-20 overflow-hidden shadow-sm">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1561131668-f63504fc549d?q=80&w=1920&auto=format&fit=crop"
+            alt="Airplane perfectly centered in the sky"
+            className="w-full h-full object-cover"
+          />
+          {/* Soft solid blue overlay (no gradients) */}
+          <div className="absolute inset-0 bg-blue-900/85" />
+        </div>
+        
+        {/* Decorative elements */}
+        <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute top-10 right-20 w-80 h-80 rounded-full border border-white/10 animate-spin" style={{ animationDuration: '35s' }} />
           <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-white/5" />
         </div>
@@ -351,12 +363,19 @@ export default function MyInvoices() {
             { icon: CheckCircle, label: 'Amount Paid',    value: `$${totalPaid.toLocaleString()}`,   sub: 'Cleared',      color: 'text-emerald-600',bg: 'bg-emerald-50', border: 'border-emerald-200' },
             { icon: AlertCircle, label: 'Outstanding',    value: `$${totalOutstanding.toLocaleString()}`, sub: unpaidCount > 0 ? `${unpaidCount} invoice${unpaidCount>1?'s':''} pending` : 'All clear', color: totalOutstanding > 0 ? 'text-red-500' : 'text-emerald-600', bg: totalOutstanding > 0 ? 'bg-red-50' : 'bg-emerald-50', border: totalOutstanding > 0 ? 'border-red-200' : 'border-emerald-200' },
           ].map(({ icon: Icon, label, value, sub, color, bg, border }) => (
-            <div key={label} className={`bg-white rounded-2xl p-5 shadow-sm border-2 ${border} hover:border-primary-200 hover:shadow-md transition-all duration-300`}>
-              <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-3`}>
-                <Icon className={`w-5 h-5 ${color}`} />
+            <div
+              key={label}
+              className={`bg-white rounded-3xl p-6 border-2 ${border} hover:border-primary-400 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden group`}
+              style={{ boxShadow: '0 6px 24px rgba(37,99,235,0.06), 0 2px 6px rgba(0,0,0,0.04)' }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow='0 20px 50px -8px rgba(37,99,235,0.20), 0 8px 20px -4px rgba(0,0,0,0.08)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow='0 6px 24px rgba(37,99,235,0.06), 0 2px 6px rgba(0,0,0,0.04)'}
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-primary-600 rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className={`w-12 h-12 rounded-2xl ${bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm group-hover:shadow-md`}>
+                <Icon className={`w-6 h-6 ${color}`} />
               </div>
               <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">{label}</p>
-              <p className={`text-2xl font-black mt-1 ${color}`}>{loading ? '—' : value}</p>
+              <p className={`text-3xl font-black mt-1 ${color}`}>{loading ? '—' : value}</p>
               <p className="text-xs text-slate-400 font-medium mt-1">{sub}</p>
             </div>
           ))}
@@ -440,7 +459,13 @@ export default function MyInvoices() {
             const isExpanded  = expandedId === inv._id;
 
             return (
-              <div key={inv._id} className="bg-white rounded-2xl shadow-sm border-2 border-slate-100 overflow-hidden hover:border-primary-200 hover:shadow-lg transition-all duration-300">
+              <div
+                key={inv._id}
+                className="bg-white rounded-3xl border-2 border-slate-100 overflow-hidden hover:border-primary-300 transition-all duration-300 group/inv"
+                style={{ boxShadow: '0 4px 20px rgba(37,99,235,0.05), 0 1px 4px rgba(0,0,0,0.03)' }}
+                onMouseEnter={e => e.currentTarget.style.boxShadow='0 15px 40px -8px rgba(37,99,235,0.18), 0 5px 15px -4px rgba(0,0,0,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.boxShadow='0 4px 20px rgba(37,99,235,0.05), 0 1px 4px rgba(0,0,0,0.03)'}
+              >
                 <div
                   className="flex flex-wrap items-center gap-4 p-5 cursor-pointer select-none group"
                   onClick={() => setExpandedId(isExpanded ? null : inv._id)}
@@ -566,7 +591,7 @@ export default function MyInvoices() {
                     </div>
 
                     {outstanding > 0 && inv.status !== 'Draft' && (
-                      <div className="flex items-center justify-between bg-gradient-to-r from-primary-50 to-blue-50 border-2 border-primary-200 rounded-2xl p-6 shadow-inner">
+                      <div className="flex items-center justify-between bg-blue-50 border-2 border-primary-200 rounded-2xl p-6 shadow-inner">
                         <div>
                           <p className="font-black text-slate-900 text-lg">Balance Due: <span className="text-red-600">{inv.currency} {outstanding.toFixed(2)}</span></p>
                           <p className="text-sm text-slate-600 font-medium mt-1">Pay now to settle your invoice instantly</p>

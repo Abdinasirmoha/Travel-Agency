@@ -41,13 +41,13 @@ function BookingModal({ pkg, customer, onClose, onSuccess }) {
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-        <div className="bg-primary-600 px-8 py-6 flex justify-between items-start">
+        <div className="px-8 py-6 flex justify-between items-start bg-blue-600">
           <div>
-            <p className="text-primary-100 text-xs font-bold uppercase tracking-wider mb-1">Tour Booking</p>
+            <p className="text-blue-300 text-xs font-bold uppercase tracking-wider mb-1">Tour Booking</p>
             <h3 className="text-xl font-bold text-white">{pkg.name}</h3>
-            {pkg.destination && <p className="text-primary-100 text-sm mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" />{pkg.destination}</p>}
+            {pkg.destination && <p className="text-blue-300 text-sm mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" />{pkg.destination}</p>}
           </div>
-          <button onClick={onClose} className="text-primary-200 hover:text-white transition-colors"><X className="w-6 h-6" /></button>
+          <button onClick={onClose} className="text-blue-300 hover:text-white transition-colors"><X className="w-6 h-6" /></button>
         </div>
         <div className="p-8 space-y-5">
           <div className="bg-slate-50 rounded-xl p-5 border-2 border-slate-100 space-y-3">
@@ -99,7 +99,7 @@ function BookingModal({ pkg, customer, onClose, onSuccess }) {
             <button onClick={onClose} className="flex-1 py-4 border-2 border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">
               Cancel
             </button>
-            <button onClick={handleBook} disabled={loading} className="flex-1 py-4 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-md disabled:opacity-60 flex items-center justify-center gap-2 hover:-translate-y-0.5">
+            <button onClick={handleBook} disabled={loading} className="flex-1 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all shadow-sm disabled:opacity-60 flex items-center justify-center gap-2">
               {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Booking…</> : <><MapPin className="w-5 h-5" /> Confirm Booking</>}
             </button>
           </div>
@@ -119,11 +119,27 @@ export default function Tourism() {
   const [selected, setSelected] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
 
-  const getTourImage = (category) => {
-    const cat = (category || '').toLowerCase();
-    if (cat.includes('religious') || cat.includes('hajj') || cat.includes('umrah')) return '/images/tour_religious.jpg';
-    if (cat.includes('adventure') || cat.includes('safari')) return '/images/tour_safari.jpg';
-    if (cat.includes('cultur') || cat.includes('historic')) return '/images/tour_historic.jpg';
+  // Local generated images — each category has its own beautiful image
+  const getTourImage = (category = '', name = '') => {
+    const cat = (category + ' ' + name).toLowerCase();
+
+    // 🕌 Religious / Hajj / Umrah
+    if (cat.includes('religious') || cat.includes('hajj') || cat.includes('umrah') || cat.includes('pilgrimage') || cat.includes('islam') || cat.includes('mecca'))
+      return '/images/tour_religious.jpg';
+
+    // 🦁 Adventure / Safari
+    if (cat.includes('adventure') || cat.includes('safari') || cat.includes('hiking') || cat.includes('trekking') || cat.includes('outdoor') || cat.includes('mountain'))
+      return '/images/tour_adventure.jpg';
+
+    // 🏖️ Leisure / Beach / Tropical
+    if (cat.includes('leisure') || cat.includes('beach') || cat.includes('tropical') || cat.includes('resort') || cat.includes('island') || cat.includes('maldives') || cat.includes('relax'))
+      return '/images/tour_leisure.jpg';
+
+    // 🏛️ Culture / Historic
+    if (cat.includes('cultur') || cat.includes('historic') || cat.includes('heritage') || cat.includes('ancient') || cat.includes('monument') || cat.includes('museum'))
+      return '/images/tour_historic.jpg';
+
+    // 🌍 Default
     return '/images/tour_tropical.jpg';
   };
 
@@ -149,15 +165,24 @@ export default function Tourism() {
     <div className="min-h-screen bg-slate-50 font-sans">
       <Navbar />
       <div className="pt-20">
-        <div className="bg-primary-600 py-16 px-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        {/* Page header — elite blue */}
+        <div className="relative py-20 px-6 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #1e3a8a 50%, #1d4ed8 100%)' }}>
+          <img
+            src="https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=1800&auto=format&fit=crop"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-10"
+          />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
           <div className="container mx-auto relative z-10">
-            <div className="inline-flex items-center gap-2 bg-white/20 text-white border border-white/30 rounded-full px-4 py-2 text-sm font-semibold mb-4 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 bg-white/10 text-blue-200 border border-blue-400/40 rounded-full px-4 py-2 text-sm font-semibold mb-5 backdrop-blur-sm">
               <MapPin className="w-4 h-4" />
               Tour Packages
             </div>
-            <h1 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">Explore Our Tour Packages</h1>
-            <p className="text-primary-100 text-lg font-medium">Handpicked holiday packages to the world's most beautiful destinations.</p>
+            <h1 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">
+              Explore Our <span className="text-blue-300">Tour Packages</span>
+            </h1>
+            <p className="text-blue-200 text-lg font-medium max-w-xl">Handpicked holiday packages to the world's most beautiful destinations.</p>
           </div>
         </div>
 
@@ -219,26 +244,31 @@ export default function Tourism() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filtered.map((pkg, index) => (
-                <div key={pkg._id} className="bg-white rounded-2xl shadow-sm border-2 border-slate-100 hover:border-primary-200 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden group flex flex-col">
-                  {/* Card header */}
-                  <div className="relative p-6 overflow-hidden min-h-[180px] flex flex-col justify-end">
-                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${getTourImage(pkg.category)}')` }} />
-                    <div className="absolute inset-0 bg-slate-900/60 group-hover:bg-slate-900/40 transition-colors duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
-                    <div className="relative z-10 h-full flex flex-col justify-between">
+                <div key={pkg._id} className="bg-white rounded-3xl shadow-md border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden group flex flex-col">
+                  {/* Card image */}
+                  <div className="relative overflow-hidden min-h-[200px] flex flex-col justify-end">
+                    <img
+                      src={getTourImage(pkg.category, pkg.name)}
+                      alt={pkg.name}
+                      onError={e => { e.target.onerror = null; e.target.src = '/images/tour_tropical.jpg'; }}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    {/* Light overlay — image stays vivid */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/25 to-transparent" />
+                    <div className="relative z-10 p-6 h-full flex flex-col justify-between">
                       <div className="flex justify-between items-start mb-6">
-                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-primary-600 group-hover:border-primary-500 transition-all duration-300">
+                        <div className="w-12 h-12 rounded-full backdrop-blur-md flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-blue-600 group-hover:border-blue-400 transition-all duration-300" style={{ background: 'rgba(255,255,255,0.15)' }}>
                           <MapPin className="w-6 h-6 text-white" />
                         </div>
                         {pkg.category && (
-                          <p className="text-white text-xs font-bold uppercase tracking-wider bg-white/20 px-3 py-1.5 rounded-lg border border-white/30 backdrop-blur-sm shadow-sm">{pkg.category}</p>
+                          <p className="text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border backdrop-blur-sm" style={{ background: 'rgba(59,130,246,0.25)', borderColor: 'rgba(147,197,253,0.5)', color: '#bfdbfe' }}>{pkg.category}</p>
                         )}
                       </div>
                       <div>
                         <h3 className="text-white font-black text-2xl drop-shadow-md leading-tight">{pkg.name}</h3>
                         {pkg.destination && (
-                          <p className="text-primary-100 text-sm mt-1 flex items-center gap-1 font-medium drop-shadow">
-                            <MapPin className="w-4 h-4 text-primary-200" />{pkg.destination}
+                          <p className="text-blue-200 text-sm mt-1 flex items-center gap-1 font-medium drop-shadow">
+                            <MapPin className="w-4 h-4 text-blue-300" />{pkg.destination}
                           </p>
                         )}
                       </div>
@@ -267,7 +297,7 @@ export default function Tourism() {
                       </div>
                       <button
                         onClick={() => setSelected(pkg)}
-                        className="px-6 py-3 bg-primary-600 text-white text-sm font-bold rounded-xl hover:bg-primary-700 transition-all shadow-md shadow-primary-600/20 hover:shadow-lg hover:-translate-y-0.5"
+                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-2xl transition-all shadow-sm hover:-translate-y-0.5"
                       >
                         Book Now
                       </button>
