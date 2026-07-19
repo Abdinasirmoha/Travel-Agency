@@ -1,8 +1,10 @@
 import { Search, Plus, X, Edit, Trash2, Briefcase } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { fetchTourBookings, fetchTourPackages, fetchCustomers, createTourBooking, updateTourBooking, deleteTourBooking } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
-export default function TourBookings() {
+ export default function TourBookings() {
+ const { hasPermission } = usePermissions();
  const [bookings, setBookings] = useState([]);
  const [tourPackages, setTourPackages] = useState([]);
  const [customersList, setCustomersList] = useState([]);
@@ -130,19 +132,36 @@ export default function TourBookings() {
  return `https://randomuser.me/api/portraits/${gender === 'Female' ? 'women' : 'men'}/${id}.jpg`;
  };
 
+ if (loading) return <div className="p-8 text-center text-slate-500">Loading Tour Bookings...</div>;
+
+ if (!hasPermission('Tours', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Tours module.</p>
+     </div>
+   );
+ }
+
  return (
  <div className="space-y-6">
  <div className="flex justify-between items-start">
  <div>
  <h1 className="text-2xl font-bold text-blue-600 mb-1">Tour Bookings</h1>
-  </div>
- <div className="flex space-x-3">
- <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors ">
- <Plus className="w-4 h-4 mr-2" />
- New Booking
- </button>
+ <p className="text-slate-500 text-sm">Manage customer bookings for tour packages.</p>
  </div>
-  </div>
+ <div className="flex space-x-3">
+ {hasPermission('Tours', 'create') && (
+   <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors ">
+   <Plus className="w-4 h-4 mr-2" />
+   New Booking
+   </button>
+ )}
+ </div>
+ </div>
 
   {/* ── Stat Cards (Tour Bookings Functionality) ── */}
   {(() => {
@@ -275,13 +294,19 @@ export default function TourBookings() {
  &bull; {bkg.paymentStatus}
  </span>
  </td>
- <td className="px-6 py-4 text-right">
- <button onClick={() => handleOpenEdit(bkg)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
- <Edit className="w-4 h-4" />
- </button>
- <button onClick={() => handleDelete(bkg._id)} className="p-2 text-slate-400 hover:text-slate-500 transition-colors ml-1">
- <Trash2 className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Tours', 'edit') && (
+   <button onClick={() => handleOpenEdit(bkg)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Tours', 'delete') && (
+   <button onClick={() => handleDelete(bkg._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
+ )}
+ </div>
  </td>
  </tr>
  );

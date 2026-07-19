@@ -1,13 +1,15 @@
 import { Search, Filter, RefreshCw, Download, Plus, User, X, Edit, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { fetchCustomers, createCustomer, updateCustomer, deleteCustomer } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
 const mockCustomers = [
  { _id: '1', name: 'Alexander Hamilton', email: 'alex.h@finance.com', passportNo: 'Z12345678', nationality: 'USA', natCode: 'US', contact: '+1 555-0102', gender: 'Male', status: 'Active' },
  { _id: '2', name: 'Sofia Rodriguez', email: 'sofia.r@travel.es', passportNo: 'B98765432', nationality: 'Spain', natCode: 'ES', contact: '+34 912 345 678', gender: 'Female', status: 'Active' },
 ];
 
-export default function Customers() {
+ export default function Customers() {
+ const { hasPermission } = usePermissions();
  const [customersData, setCustomersData] = useState([]);
  const [loading, setLoading] = useState(true);
  const [isModalOpen, setIsModalOpen] = useState(false);
@@ -107,21 +109,40 @@ export default function Customers() {
 
  const nationalities = ['All', ...new Set(customersData.map(c => c.nationality))];
 
+ if (loading) return <div className="p-8 text-center text-slate-500">Loading Customers...</div>;
+
+ if (!hasPermission('Customers', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Customers module. Please contact your system administrator if you believe this is an error.</p>
+     </div>
+   );
+ }
+
  return (
  <div className="space-y-6">
- <div className="flex justify-between items-start">
+ {/* Header */}
+ <div className="flex justify-between items-end">
  <div>
- <h1 className="text-2xl font-bold text-blue-600 mb-1">Customer Management</h1>
-  </div>
- <div className="flex space-x-3">
- <button className="flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg text-sm font-medium hover:bg-blue-50 hover:text-blue-600 transition-colors ">
- <Download className="w-4 h-4 mr-2" />
- Export PDF
+ <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Customers Directory</h1>
+ <p className="text-slate-500 mt-1">Manage client profiles, passports, and contact details</p>
+ </div>
+ <div className="flex gap-3">
+ <button onClick={loadCustomers} className="flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium shadow-sm">
+ <RefreshCw className="w-4 h-4 mr-2" /> Refresh
  </button>
- <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors ">
- <Plus className="w-4 h-4 mr-2" />
- Add New Customer
+ <button className="flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium shadow-sm">
+ <Download className="w-4 h-4 mr-2" /> Export
  </button>
+ {hasPermission('Customers', 'create') && (
+   <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-sm shadow-blue-600/20">
+   <Plus className="w-4 h-4 mr-2" /> Add Customer
+   </button>
+ )}
  </div>
  </div>
 
@@ -192,13 +213,19 @@ export default function Customers() {
  {c.status}
  </span>
  </td>
- <td className="px-6 py-4 text-right">
- <button onClick={() => handleOpenEdit(c)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
- <Edit className="w-4 h-4" />
- </button>
- <button onClick={() => handleDelete(c._id)} className="p-2 text-slate-400 hover:text-slate-500 transition-colors ml-1">
- <Trash2 className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Customers', 'edit') && (
+   <button onClick={() => handleOpenEdit(c)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Customers', 'delete') && (
+   <button onClick={() => handleDelete(c._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
+ )}
+ </div>
  </td>
  </tr>
  ))}

@@ -1,6 +1,7 @@
 import { Search, Download, Plus, MapPin, Navigation, MoreVertical, X, Edit, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { fetchFlights, createFlight, updateFlight, deleteFlight } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
 const mockFlights = [
  { _id: '1', flightNumber: 'EK-202', airline: 'Emirates', airlineLogo: 'EM', route: 'DXB-JFK', departureTime: new Date(new Date().setHours(8, 30)), arrivalTime: new Date(new Date().setHours(21, 15)), status: 'ON TIME', seatsAvailable: 308, totalSeats: 350, type: 'International' },
@@ -8,7 +9,8 @@ const mockFlights = [
  { _id: '3', flightNumber: 'LH-456', airline: 'Lufthansa', airlineLogo: 'LH', route: 'FRA-HND', departureTime: new Date(new Date().setHours(14, 10)), arrivalTime: new Date(new Date().setHours(9, 35)), status: 'SCHEDULED', seatsAvailable: 78, totalSeats: 220, type: 'International' },
 ];
 
-export default function Flights() {
+ export default function Flights() {
+ const { hasPermission } = usePermissions();
  const [flightsData, setFlightsData] = useState([]);
  const [loading, setLoading] = useState(true);
  
@@ -132,21 +134,38 @@ export default function Flights() {
  }
  };
 
+ if (loading) return <div className="p-8 text-center text-slate-500">Loading Flights...</div>;
+
+ if (!hasPermission('Flights', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Flights module.</p>
+     </div>
+   );
+ }
+
  return (
  <div className="space-y-6">
- <div className="flex justify-between items-start">
+ <div className="flex justify-between items-end">
  <div>
- <h1 className="text-2xl font-bold text-blue-600 mb-1">Flight Management</h1>
-  </div>
+ <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Flight Operations</h1>
+ <p className="text-slate-500 mt-1">Manage active flights, routes, and capacities</p>
+ </div>
  <div className="flex space-x-3">
- <button className="flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors ">
+ <button className="flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium shadow-sm">
  <Download className="w-4 h-4 mr-2" />
- Export
+ Export Log
  </button>
- <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors ">
- <Plus className="w-4 h-4 mr-2" />
- Add New Flight
- </button>
+ {hasPermission('Flights', 'create') && (
+   <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-sm shadow-blue-600/20">
+   <Plus className="w-4 h-4 mr-2" />
+   Add Flight
+   </button>
+ )}
  </div>
  </div>
 
@@ -276,13 +295,19 @@ export default function Flights() {
  <div className="bg-blue-600 h-1 rounded-full" style={{ width: `${(seatsUsed/f.totalSeats)*100}%` }}></div>
  </div>
  </td>
- <td className="px-6 py-4 text-right">
- <button onClick={() => handleOpenEdit(f)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
- <Edit className="w-4 h-4" />
- </button>
- <button onClick={() => handleDelete(f._id || f.id)} className="p-2 text-slate-400 hover:text-slate-500 transition-colors ml-1">
- <Trash2 className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Flights', 'edit') && (
+   <button onClick={() => handleOpenEdit(f)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Flights', 'delete') && (
+   <button onClick={() => handleDelete(f._id || f.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
+ )}
+ </div>
  </td>
  </tr>
  );

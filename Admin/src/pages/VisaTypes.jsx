@@ -1,8 +1,10 @@
 import { Search, Plus, X, Edit, Trash2, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { fetchVisaTypes, createVisaType, updateVisaType, deleteVisaType } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
-export default function VisaTypes() {
+ export default function VisaTypes() {
+ const { hasPermission } = usePermissions();
  const [visaTypes, setVisaTypes] = useState([]);
  const [loading, setLoading] = useState(true);
  const [isModalOpen, setIsModalOpen] = useState(false);
@@ -76,17 +78,33 @@ export default function VisaTypes() {
  vt.country.toLowerCase().includes(searchQuery.toLowerCase())
  );
 
+ if (loading) return <div className="p-8 text-center text-slate-500">Loading Visa Types...</div>;
+
+ if (!hasPermission('Visas', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Visas module.</p>
+     </div>
+   );
+ }
+
  return (
  <div className="space-y-6">
  <div className="flex justify-between items-start">
  <div>
  <h1 className="text-2xl font-bold text-blue-600 mb-1">Visa Types</h1>
-  </div>
+ </div>
  <div className="flex space-x-3">
- <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors ">
- <Plus className="w-4 h-4 mr-2" />
- Add Visa Type
- </button>
+ {hasPermission('Visas', 'create') && (
+   <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors ">
+   <Plus className="w-4 h-4 mr-2" />
+   Add Visa Type
+   </button>
+ )}
  </div>
  </div>
 
@@ -133,14 +151,19 @@ export default function VisaTypes() {
  </td>
  <td className="px-6 py-4 font-medium text-slate-700">{vt.country}</td>
  <td className="px-6 py-4 text-slate-600">{vt.durationDays} Days</td>
- <td className="px-6 py-4 font-bold text-blue-600">${vt.basePrice.toFixed(2)}</td>
- <td className="px-6 py-4 text-right">
- <button onClick={() => handleOpenEdit(vt)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
- <Edit className="w-4 h-4" />
- </button>
- <button onClick={() => handleDelete(vt._id)} className="p-2 text-slate-400 hover:text-slate-500 transition-colors ml-1">
- <Trash2 className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Visas', 'edit') && (
+   <button onClick={() => handleOpenEdit(vt)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Visas', 'delete') && (
+   <button onClick={() => handleDelete(vt._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
+ )}
+ </div>
  </td>
  </tr>
  ))}

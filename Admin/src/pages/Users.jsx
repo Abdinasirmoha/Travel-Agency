@@ -1,13 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Plus, Edit2, Trash2, X, Users, Mail, Shield, CheckCircle, XCircle, UserCheck, ShieldAlert, User, Check } from 'lucide-react';
 import { fetchUsers, createUser, updateUser, deleteUser, fetchRoles } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
 const MODULES = [
  'Dashboard', 'Customers', 'Flights', 'Tickets', 'Visas', 
- 'Tours', 'Cargo', 'Finance', 'Expenses', 'Staff', 'Users', 'Roles'
+ 'Tours', 'Cargo', 'Finance', 'Expenses', 'Staff', 'Users', 'Roles',
+ 'Reports', 'Notifications', 'Settings'
 ];
 
-export default function UsersPage() {
+ export default function UsersPage() {
+ const { hasPermission } = usePermissions();
  const [users, setUsers] = useState([]);
  const [roles, setRoles] = useState([]);
  const [isLoading, setIsLoading] = useState(true);
@@ -184,7 +187,19 @@ export default function UsersPage() {
  };
  }, [users]);
 
- if (isLoading) return <div className="p-8 text-center text-slate-500">Loading Users...</div>;
+ if (isLoading) return <div className="p-8 text-center text-slate-500">Loading System Users...</div>;
+
+ if (!hasPermission('Users', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the System Users module.</p>
+     </div>
+   );
+ }
 
  return (
  <div className="max-w-7xl mx-auto space-y-6">
@@ -198,20 +213,23 @@ export default function UsersPage() {
  <div className="flex justify-between items-center">
  <div>
  <h1 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
- <Users className="w-6 h-6 text-blue-600" /> User Management
+ <Shield className="w-6 h-6 text-blue-600" /> System Users
  </h1>
-  </div>
- <button
- onClick={() => {
- resetForm();
- setEditingUser(null);
- setIsModalOpen(true);
- }}
- className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors "
- >
- <Plus className="w-5 h-5 mr-2" />
- Create User
- </button>
+ <p className="text-slate-500">Manage admin users, roles, and custom permissions</p>
+ </div>
+ {hasPermission('Users', 'create') && (
+   <button
+   onClick={() => {
+   resetForm();
+   setEditingUser(null);
+   setIsModalOpen(true);
+   }}
+   className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+   >
+   <Plus className="w-5 h-5 mr-2" />
+   Create User
+   </button>
+ )}
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -308,20 +326,18 @@ export default function UsersPage() {
  <td className="px-6 py-4 text-slate-500">
  {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
  </td>
- <td className="px-6 py-4">
- <div className="flex justify-end space-x-2">
- <button 
- onClick={() => handleOpenEdit(user)}
- className="p-1.5 bg-white text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 rounded-md transition-all "
- >
- <Edit2 className="w-4 h-4" />
- </button>
- <button 
- onClick={() => handleDelete(user._id)}
- className="p-1.5 bg-white text-slate-400 hover:text-slate-500 hover:border-slate-200 hover:bg-white rounded-md transition-all ml-2"
- >
- <Trash2 className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Users', 'edit') && (
+   <button onClick={() => handleOpenEdit(user)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit2 className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Users', 'delete') && (
+   <button onClick={() => handleDelete(user._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
+ )}
  </div>
  </td>
  </tr>

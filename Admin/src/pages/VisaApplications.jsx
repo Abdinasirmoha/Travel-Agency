@@ -1,8 +1,10 @@
 import { Search, Plus, X, Edit, Trash2, FileText, CheckCircle, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { fetchVisaApplications, fetchVisaTypes, fetchCustomers, createVisaApplication, updateVisaApplication, deleteVisaApplication } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
-export default function VisaApplications() {
+ export default function VisaApplications() {
+ const { hasPermission } = usePermissions();
  const [applications, setApplications] = useState([]);
  const [visaTypes, setVisaTypes] = useState([]);
  const [customersList, setCustomersList] = useState([]);
@@ -129,18 +131,33 @@ export default function VisaApplications() {
  return `https://randomuser.me/api/portraits/${gender === 'Female' ? 'women' : 'men'}/${id}.jpg`;
  };
 
+ if (loading) return <div className="p-8 text-center text-slate-500">Loading Visa Applications...</div>;
+
+ if (!hasPermission('Visas', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Visas module.</p>
+     </div>
+   );
+ }
+
  return (
  <div className="space-y-6">
- <div className="flex justify-between items-start">
+ <div className="flex justify-between items-end">
  <div>
- <h1 className="text-2xl font-bold text-blue-600 mb-1">Visa Applications</h1>
-  </div>
- <div className="flex space-x-3">
- <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors ">
- <Plus className="w-4 h-4 mr-2" />
- New Application
- </button>
+ <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Visa Applications</h1>
+ <p className="text-slate-500 mt-1">Process and track customer visa requests</p>
  </div>
+ {hasPermission('Visas', 'create') && (
+   <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20">
+   <Plus className="w-4 h-4 mr-2" />
+   New Application
+   </button>
+ )}
  </div>
 
   {/* ── Stat Cards (Visa Functionality) ── */}
@@ -269,13 +286,19 @@ export default function VisaApplications() {
  </span>
  </td>
 
- <td className="px-6 py-4 text-right">
- <button onClick={() => handleOpenEdit(app)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
- <Edit className="w-4 h-4" />
- </button>
- <button onClick={() => handleDelete(app._id)} className="p-2 text-slate-400 hover:text-slate-500 transition-colors ml-1">
- <Trash2 className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Visas', 'edit') && (
+   <button onClick={() => handleOpenEdit(app)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Visas', 'delete') && (
+   <button onClick={() => handleDelete(app._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
+ )}
+ </div>
  </td>
  </tr>
  );

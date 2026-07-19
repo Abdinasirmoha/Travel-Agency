@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, Edit2, Trash2, X, DollarSign, Clock, CheckCircle, TrendingUp } from 'lucide-react';
 import { fetchExpenses, createExpense, updateExpense, deleteExpense } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
-export default function Expenses() {
+ export default function Expenses() {
+ const { hasPermission } = usePermissions();
  const [expenses, setExpenses] = useState([]);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [editingExpense, setEditingExpense] = useState(null);
@@ -107,7 +109,19 @@ export default function Expenses() {
  };
  }, [expenses]);
 
- if (isLoading) return <div className="p-8 text-center text-slate-500">Loading...</div>;
+ if (isLoading) return <div className="p-8 text-center text-slate-500">Loading Expenses...</div>;
+
+ if (!hasPermission('Expenses', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Expenses module.</p>
+     </div>
+   );
+ }
 
  return (
  <div className="max-w-7xl mx-auto space-y-6">
@@ -118,21 +132,24 @@ export default function Expenses() {
  </div>
  )}
 
- <div className="flex justify-between items-center">
+ <div className="flex justify-between items-end">
  <div>
- <h1 className="text-2xl font-bold text-blue-600">Expenses</h1>
-  </div>
- <button
- onClick={() => {
- resetForm();
- setEditingExpense(null);
- setIsModalOpen(true);
- }}
- className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors "
- >
- <Plus className="w-5 h-5 mr-2" />
- Add Expense
- </button>
+ <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Expenses</h1>
+ <p className="text-slate-500 mt-1">Manage company spending and operational costs</p>
+ </div>
+ {hasPermission('Expenses', 'create') && (
+   <button
+   onClick={() => {
+   resetForm();
+   setEditingExpense(null);
+   setIsModalOpen(true);
+   }}
+   className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+   >
+   <Plus className="w-5 h-5 mr-2" />
+   Record Expense
+   </button>
+ )}
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -228,20 +245,18 @@ export default function Expenses() {
  {expense.status}
  </span>
  </td>
- <td className="py-4 px-6">
- <div className="flex justify-end space-x-2">
- <button 
- onClick={() => openEditModal(expense)}
- className="p-1.5 bg-white text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 rounded-md transition-all "
- >
- <Edit2 className="w-4 h-4" />
- </button>
- <button 
- onClick={() => handleDelete(expense._id)}
- className="p-1.5 bg-white text-slate-400 hover:text-slate-500 hover:border-slate-200 hover:bg-white rounded-md transition-all ml-2"
- >
- <Trash2 className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Expenses', 'edit') && (
+   <button onClick={() => openEditModal(expense)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit2 className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Expenses', 'delete') && (
+   <button onClick={() => handleDelete(expense._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
+ )}
  </div>
  </td>
  </tr>

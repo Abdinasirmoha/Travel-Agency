@@ -2,6 +2,7 @@ import { Filter, Download, Plane, AlertCircle, CheckCircle, Clock, Plus, X, Edit
 import { BarChart, Bar, ResponsiveContainer } from 'recharts';
 import { useState, useEffect } from 'react';
 import { fetchTickets, fetchFlights, fetchCustomers, createTicket, updateTicket, deleteTicket } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
 const mockTickets = [
  { _id: '1', passengerName: 'Julianne H. Moore', passportNo: 'P-982341', pnr: 'XJ78PQ', flightDetails: { route: 'DXB-JFK', airline: 'Emirates' }, issuanceStatus: 'Issued', totalAmount: 1420.00, currency: 'USD', paymentStatus: 'Paid', gender: 'Female' },
@@ -10,7 +11,8 @@ const mockTickets = [
 
 // Stats calculation will happen dynamically based on ticketsData
 
-export default function Tickets() {
+ export default function Tickets() {
+ const { hasPermission } = usePermissions();
  const [ticketsData, setTicketsData] = useState([]);
  const [flightsList, setFlightsList] = useState([]);
  const [customersList, setCustomersList] = useState([]);
@@ -173,22 +175,37 @@ export default function Tickets() {
 
  stats.chartData = Object.values(chartMap);
 
+ if (loading) return <div className="p-8 text-center text-slate-500">Loading Tickets...</div>;
+
+ if (!hasPermission('Tickets', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Tickets module.</p>
+     </div>
+   );
+ }
+
  return (
  <div className="space-y-6">
-  <div className="flex justify-between items-center">
+  {/* Header */}
+  <div className="flex justify-between items-end">
   <div>
-  <h1 className="text-2xl font-bold text-blue-600 mb-0.5">Ticket Management</h1>
-  <p className="text-sm text-slate-400">Manage and track all passenger tickets</p>
+  <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Ticket Management</h1>
+  <p className="text-slate-500 mt-1">Issue and manage passenger flight tickets</p>
   </div>
   <div className="flex space-x-3">
-  <button className="flex items-center px-4 py-2 bg-white text-slate-600 rounded-xl text-sm font-semibold border border-slate-200 hover:border-blue-300 hover:text-blue-600 transition-all shadow-sm">
-  <Download className="w-4 h-4 mr-2" />
-  Export CSV
+  <button className="flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium shadow-sm">
+  <Download className="w-4 h-4 mr-2" /> Export
   </button>
-  <button onClick={handleOpenAdd} className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all shadow-md shadow-blue-200">
-  <Plus className="w-4 h-4 mr-2" />
-  Add New Ticket
-  </button>
+  {hasPermission('Tickets', 'create') && (
+    <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-sm shadow-blue-600/20">
+    <Plus className="w-4 h-4 mr-2" /> Issue Ticket
+    </button>
+  )}
   </div>
   </div>
 
@@ -222,8 +239,6 @@ export default function Tickets() {
   </div>
   </div>
   </div>
-
-
 
   <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-slate-100 flex flex-wrap gap-4 items-end">
   <div className="flex-1 min-w-[200px]">
@@ -313,13 +328,19 @@ export default function Tickets() {
   {payment}
   </span>
   </td>
-  <td className="px-6 py-3.5 text-right">
-  <button onClick={() => handleOpenEdit(t)} className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
-  <Edit className="w-4 h-4" />
-  </button>
-  <button onClick={() => handleDelete(t._id || t.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all ml-1">
-  <Trash2 className="w-4 h-4" />
-  </button>
+  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+  <div className="flex items-center justify-end gap-2">
+  {hasPermission('Tickets', 'edit') && (
+    <button onClick={() => handleOpenEdit(t)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+    <Edit className="w-4 h-4" />
+    </button>
+  )}
+  {hasPermission('Tickets', 'delete') && (
+    <button onClick={() => handleDelete(t._id || t.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+    <Trash2 className="w-4 h-4" />
+    </button>
+  )}
+  </div>
   </td>
   </tr>
  );

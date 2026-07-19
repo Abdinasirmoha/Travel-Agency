@@ -3,6 +3,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useState, useEffect, useRef } from 'react';
 import { fetchAdvancedDashboardStats, fetchDashboardCharts, fetchPayments, fetchInvoices } from '../api';
 import { Link } from 'react-router-dom';
+import { usePermissions } from '../context/AuthContext';
 
 const COLORS = ['#10b981', '#ef4444', '#f59e0b', '#3b82f6'];
 const VISA_COLORS = ['#10b981', '#3b82f6', '#ef4444', '#f59e0b'];
@@ -50,6 +51,7 @@ function StatCard({ icon: Icon, label, value, prefix = '', color, bgColor, trend
 }
 
 export default function Dashboard() {
+ const { hasPermission } = usePermissions();
  const [isLoading, setIsLoading] = useState(true);
  const [stats, setStats] = useState(null);
  const [charts, setCharts] = useState({
@@ -119,6 +121,18 @@ export default function Dashboard() {
  </div>
  </div>
  );
+ }
+
+ if (!hasPermission('Dashboard', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Dashboard.</p>
+     </div>
+   );
  }
 
  return (

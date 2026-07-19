@@ -1,13 +1,27 @@
 import { useState } from 'react';
-import { Download, Printer, Filter, ChevronRight, FileSpreadsheet } from 'lucide-react';
+import { Download, Printer, Filter, ChevronRight, FileSpreadsheet, X } from 'lucide-react';
 import DashboardTab from './DashboardTab';
 import TablesTab from './TablesTab';
+import { usePermissions } from '../../context/AuthContext';
 
-export default function ReportsIndex() {
+ export default function ReportsIndex() {
+ const { hasPermission } = usePermissions();
  const [activeTab, setActiveTab] = useState('dashboard');
  const [dateFilter, setDateFilter] = useState('This Month');
  const [customRange, setCustomRange] = useState({ start: '', end: '' });
  const [appliedRange, setAppliedRange] = useState({ start: '', end: '' });
+
+ if (!hasPermission('Reports', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Reports module.</p>
+     </div>
+   );
+ }
 
  // Export handlers
  const handleExportPDF = () => {

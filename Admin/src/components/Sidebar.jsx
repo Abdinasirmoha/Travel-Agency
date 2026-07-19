@@ -23,31 +23,31 @@ import {
   Bell
 } from 'lucide-react';
 import clsx from 'clsx';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, usePermissions } from '../context/AuthContext';
 import { useState, useEffect } from 'react';
 
 const navItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
-  { name: 'Customers', icon: Users, path: '/customers' },
-  { name: 'Flights', icon: Plane, path: '/flights' },
-  { name: 'Tickets', icon: Ticket, path: '/tickets' },
-  { name: 'Visa Applications', icon: FileText, path: '/visa-applications' },
-  { name: 'Visa Types', icon: Globe, path: '/visa-types' },
-  { name: 'Cargo', icon: Package, path: '/cargo' },
-  { name: 'Tour Packages', icon: Map, path: '/tour-packages' },
-  { name: 'Tour Bookings', icon: Briefcase, path: '/tour-bookings' },
-  { name: 'Invoices', icon: Receipt, path: '/invoices' },
-  { name: 'Payments', icon: CreditCard, path: '/payments' },
-  { name: 'Expenses', icon: DollarSign, path: '/expenses' },
-  { name: 'Staff', icon: UserCheck, path: '/staff' },
-  { name: 'Reports', icon: PieChart, path: '/reports' },
+  { name: 'Dashboard', icon: LayoutDashboard, path: '/', module: 'Dashboard' },
+  { name: 'Customers', icon: Users, path: '/customers', module: 'Customers' },
+  { name: 'Flights', icon: Plane, path: '/flights', module: 'Flights' },
+  { name: 'Tickets', icon: Ticket, path: '/tickets', module: 'Tickets' },
+  { name: 'Visa Applications', icon: FileText, path: '/visa-applications', module: 'Visas' },
+  { name: 'Visa Types', icon: Globe, path: '/visa-types', module: 'Visas' },
+  { name: 'Cargo', icon: Package, path: '/cargo', module: 'Cargo' },
+  { name: 'Tour Packages', icon: Map, path: '/tour-packages', module: 'Tours' },
+  { name: 'Tour Bookings', icon: Briefcase, path: '/tour-bookings', module: 'Tours' },
+  { name: 'Invoices', icon: Receipt, path: '/invoices', module: 'Finance' },
+  { name: 'Payments', icon: CreditCard, path: '/payments', module: 'Finance' },
+  { name: 'Expenses', icon: DollarSign, path: '/expenses', module: 'Expenses' },
+  { name: 'Staff', icon: UserCheck, path: '/staff', module: 'Staff' },
+  { name: 'Reports', icon: PieChart, path: '/reports', module: 'Reports' },
 ];
 
 const systemItems = [
-  { name: 'Notifications', icon: Bell, path: '/notifications' },
-  { name: 'System Users', icon: Users, path: '/users' },
-  { name: 'Roles & Access', icon: Shield, path: '/roles' },
-  { name: 'Settings', icon: Settings, path: '/settings' },
+  { name: 'Notifications', icon: Bell, path: '/notifications', module: 'Notifications' },
+  { name: 'System Users', icon: Users, path: '/users', module: 'Users' },
+  { name: 'Roles & Access', icon: Shield, path: '/roles', module: 'Roles' },
+  { name: 'Settings', icon: Settings, path: '/settings', module: 'Settings' },
 ];
 
 const NavItem = ({ to, icon: Icon, label, badgeCount }) => (
@@ -89,6 +89,7 @@ const NavItem = ({ to, icon: Icon, label, badgeCount }) => (
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
+  const { hasPermission } = usePermissions();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -123,7 +124,7 @@ export default function Sidebar() {
 
   const displayName = user?.name || user?.username || user?.email || 'Admin';
 
-  const displayRole = user?.isSystemUser
+  const displayRole = (user?.role?.name === 'Super Admin' || (!user?.role && user?.isSystemUser))
     ? 'Super Admin'
     : (user?.role && typeof user.role === 'object' ? user.role.name : user?.role)
       || user?.jobTitle
@@ -164,11 +165,14 @@ export default function Sidebar() {
             Main Menu
           </h3>
           <ul className="space-y-1">
-            {navItems.map((item) => (
-              <li key={item.name}>
-                <NavItem to={item.path} icon={item.icon} label={item.name} />
-              </li>
-            ))}
+            {navItems.map((item) => {
+              if (item.module && !hasPermission(item.module, 'view')) return null;
+              return (
+                <li key={item.name}>
+                  <NavItem to={item.path} icon={item.icon} label={item.name} />
+                </li>
+              );
+            })}
           </ul>
         </div>
         
@@ -177,16 +181,19 @@ export default function Sidebar() {
             System
           </h3>
           <ul className="space-y-1">
-            {systemItems.map((item) => (
-              <li key={item.name}>
-                <NavItem 
-                  to={item.path} 
-                  icon={item.icon} 
-                  label={item.name} 
-                  badgeCount={item.name === 'Notifications' ? unreadCount : 0}
-                />
-              </li>
-            ))}
+            {systemItems.map((item) => {
+              if (item.module && !hasPermission(item.module, 'view')) return null;
+              return (
+                <li key={item.name}>
+                  <NavItem 
+                    to={item.path} 
+                    icon={item.icon} 
+                    label={item.name} 
+                    badgeCount={item.name === 'Notifications' ? unreadCount : 0}
+                  />
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>

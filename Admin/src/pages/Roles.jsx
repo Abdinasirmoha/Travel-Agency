@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, X, Shield, Check, ShieldAlert } from 'lucide-react';
 import { fetchRoles, createRole, updateRole, deleteRole } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
 const MODULES = [
  'Dashboard', 'Customers', 'Flights', 'Tickets', 'Visas', 
- 'Tours', 'Cargo', 'Finance', 'Expenses', 'Staff', 'Users', 'Roles'
+ 'Tours', 'Cargo', 'Finance', 'Expenses', 'Staff', 'Users', 'Roles',
+ 'Reports', 'Notifications', 'Settings'
 ];
 
-export default function Roles() {
+ export default function Roles() {
+ const { hasPermission } = usePermissions();
  const [roles, setRoles] = useState([]);
  const [isLoading, setIsLoading] = useState(true);
  const [error, setError] = useState(null);
@@ -111,10 +114,22 @@ export default function Roles() {
 
  if (isLoading) return <div className="p-8 text-center text-slate-500">Loading Roles...</div>;
 
+ if (!hasPermission('Roles', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Roles module.</p>
+     </div>
+   );
+ }
+
  return (
  <div className="max-w-7xl mx-auto space-y-6">
  {error && (
- <div className="bg-white text-slate-500 px-4 py-3 rounded-xl flex items-center justify-between">
+ <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl flex items-center justify-between">
  <span>{error}</span>
  <button onClick={() => setError(null)}><X className="w-5 h-5" /></button>
  </div>
@@ -123,21 +138,23 @@ export default function Roles() {
  <div className="flex justify-between items-center">
  <div>
  <h1 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
- <Shield className="w-6 h-6 text-blue-600" /> Role Permissions
+ <ShieldAlert className="w-6 h-6 text-blue-600" /> Role Management
  </h1>
- <p className="text-slate-500">Define access control levels and permissions</p>
+ <p className="text-slate-500">Create roles and configure granular permissions</p>
  </div>
- <button
- onClick={() => {
- resetForm();
- setEditingRole(null);
- setIsModalOpen(true);
- }}
- className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors "
- >
- <Plus className="w-5 h-5 mr-2" />
- Create Role
- </button>
+ {hasPermission('Roles', 'create') && (
+   <button
+   onClick={() => {
+   resetForm();
+   setEditingRole(null);
+   setIsModalOpen(true);
+   }}
+   className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+   >
+   <Plus className="w-5 h-5 mr-2" />
+   Create Role
+   </button>
+ )}
  </div>
 
  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -168,20 +185,18 @@ export default function Roles() {
  {modulesAccessed} Modules
  </span>
  </td>
- <td className="px-6 py-4">
- <div className="flex justify-end space-x-2">
- <button 
- onClick={() => handleOpenEdit(role)}
- className="p-1.5 bg-white text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 rounded-md transition-all "
- >
- <Edit2 className="w-4 h-4" />
- </button>
- <button 
- onClick={() => handleDelete(role._id)}
- className="p-1.5 bg-white text-slate-400 hover:text-slate-500 hover:border-slate-200 hover:bg-white rounded-md transition-all ml-2"
- >
- <Trash2 className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Roles', 'edit') && (
+   <button onClick={() => handleOpenEdit(role)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit2 className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Roles', 'delete') && (
+   <button onClick={() => handleDelete(role._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
+ )}
  </div>
  </td>
  </tr>

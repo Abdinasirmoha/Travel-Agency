@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Bell, CheckCircle, Package, Plane, FileText, Briefcase, Info } from 'lucide-react';
+import { Bell, CheckCircle, Package, Plane, FileText, Briefcase, Info, X } from 'lucide-react';
 import { API_BASE_URL } from '../config/api';
+import { usePermissions } from '../context/AuthContext';
 
-export default function Notifications() {
+ export default function Notifications() {
+  const { hasPermission } = usePermissions();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,6 +82,18 @@ export default function Notifications() {
 
   if (loading) {
     return <div className="p-8 text-center text-slate-500">Loading notifications...</div>;
+  }
+
+  if (!hasPermission('Notifications', 'view')) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+          <X className="w-8 h-8 text-red-600" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+        <p className="text-slate-500 max-w-md">You do not have permission to view the Notifications module.</p>
+      </div>
+    );
   }
 
   const unreadCount = notifications.filter(n => !n.isRead).length;

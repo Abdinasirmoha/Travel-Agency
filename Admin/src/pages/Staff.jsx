@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, Edit2, Trash2, X, Users, UserCheck, UserX, DollarSign } from 'lucide-react';
 import { fetchUsers, createUser, updateUser, deleteUser } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
-export default function Staff() {
+ export default function Staff() {
+ const { hasPermission } = usePermissions();
  const [staffList, setStaffList] = useState([]);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [editingStaff, setEditingStaff] = useState(null);
@@ -110,7 +112,19 @@ export default function Staff() {
  };
  }, [staffList]);
 
- if (isLoading) return <div className="p-8 text-center text-slate-500">Loading...</div>;
+ if (isLoading) return <div className="p-8 text-center text-slate-500">Loading Staff...</div>;
+
+ if (!hasPermission('Staff', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Staff module.</p>
+     </div>
+   );
+ }
 
  return (
  <div className="max-w-7xl mx-auto space-y-6">
@@ -121,25 +135,24 @@ export default function Staff() {
  </div>
  )}
 
- <div className="flex justify-between items-center">
+ <div className="flex justify-between items-end">
  <div>
- <h1 className="text-2xl font-bold text-blue-600">Staff Members</h1>
-  </div>
- <div className="flex items-center space-x-4">
- <div className="text-sm text-slate-500 bg-slate-50 px-4 py-2 rounded-lg hidden md:block">
-  </div>
- <button
- onClick={() => {
- resetForm();
- setEditingStaff(null);
- setIsModalOpen(true);
- }}
- className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors "
- >
- <Plus className="w-5 h-5 mr-2" />
- Add Staff
- </button>
+ <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Staff Management</h1>
+ <p className="text-slate-500 mt-1">Manage employee records and payroll information</p>
  </div>
+ {hasPermission('Staff', 'create') && (
+   <button
+   onClick={() => {
+   resetForm();
+   setEditingStaff(null);
+   setIsModalOpen(true);
+   }}
+   className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+   >
+   <Plus className="w-5 h-5 mr-2" />
+   Add Staff
+   </button>
+ )}
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -235,23 +248,17 @@ export default function Staff() {
  {staff.status}
  </span>
  </td>
- <td className="py-4 px-6">
- <div className="flex justify-end space-x-2">
- <button 
- onClick={() => openEditModal(staff)}
- className="p-1.5 bg-white text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 rounded-md transition-all "
- title="Edit Details"
- >
- <Edit2 className="w-4 h-4" />
- </button>
- {staff.isSystemUser === false && (
- <button 
- onClick={() => handleDelete(staff._id)}
- className="p-1.5 bg-white text-slate-400 hover:text-slate-500 hover:border-slate-200 hover:bg-white rounded-md transition-all "
- title="Delete Staff"
- >
- <Trash2 className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Staff', 'edit') && (
+   <button onClick={() => openEditModal(staff)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit2 className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Staff', 'delete') && (
+   <button onClick={() => handleDelete(staff._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
  )}
  </div>
  </td>

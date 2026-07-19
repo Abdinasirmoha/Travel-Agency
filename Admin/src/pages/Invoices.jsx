@@ -2,8 +2,10 @@ import { Search, Plus, X, Edit, Trash2, FileText, CreditCard, DollarSign, CheckC
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchInvoices, fetchCustomers, createInvoice, updateInvoice, deleteInvoice, fetchTickets, fetchVisaApplications, fetchTourBookings, fetchCargo } from '../api';
+import { usePermissions } from '../context/AuthContext';
 
-export default function Invoices() {
+ export default function Invoices() {
+ const { hasPermission } = usePermissions();
  const [invoices, setInvoices] = useState([]);
  const [customers, setCustomers] = useState([]);
  const [loading, setLoading] = useState(true);
@@ -146,19 +148,34 @@ export default function Invoices() {
  return `https://randomuser.me/api/portraits/${gender === 'Female' ? 'women' : 'men'}/${id}.jpg`;
  };
 
- const totalCalculated = formData.items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+ if (loading) return <div className="p-8 text-center text-slate-500">Loading Invoices...</div>;
+
+ if (!hasPermission('Finance', 'view')) {
+   return (
+     <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+       <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+         <X className="w-8 h-8 text-red-600" />
+       </div>
+       <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+       <p className="text-slate-500 max-w-md">You do not have permission to view the Finance module.</p>
+     </div>
+   );
+ }
 
  return (
  <div className="space-y-6">
  <div className="flex justify-between items-start">
  <div>
  <h1 className="text-2xl font-bold text-blue-600 mb-1">Invoices</h1>
-  </div>
+ <p className="text-slate-500 text-sm">Manage billing and collect payments from customers.</p>
+ </div>
  <div className="flex space-x-3">
- <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors ">
- <Plus className="w-4 h-4 mr-2" />
- New Invoice
- </button>
+ {hasPermission('Finance', 'create') && (
+   <button onClick={handleOpenAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+   <Plus className="w-4 h-4 mr-2" />
+   Create Invoice
+   </button>
+ )}
  </div>
  </div>
 
@@ -288,18 +305,28 @@ export default function Invoices() {
  &bull; {inv.status}
  </span>
  </td>
- <td className="px-6 py-4 text-right">
- {inv.status !== 'Paid' && (
- <button onClick={() => navigate('/payments', { state: { autoOpen: true, customerId: customerObj?._id, invoiceId: inv._id } })} className="p-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors mr-2" title="Quick Pay">
- <CreditCard className="w-4 h-4" />
- </button>
+ <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
+ {hasPermission('Finance', 'create') && (
+   <button 
+   onClick={() => navigate(`/payments?invoice=${inv._id}`)} 
+   className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+   title="Record Payment"
+   >
+   <CreditCard className="w-4 h-4" />
+   </button>
  )}
- <button onClick={() => handleOpenEdit(inv)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
- <Edit className="w-4 h-4" />
- </button>
- <button onClick={() => handleDelete(inv._id)} className="p-2 text-slate-400 hover:text-slate-500 transition-colors ml-1">
- <Trash2 className="w-4 h-4" />
- </button>
+ {hasPermission('Finance', 'edit') && (
+   <button onClick={() => handleOpenEdit(inv)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+   <Edit className="w-4 h-4" />
+   </button>
+ )}
+ {hasPermission('Finance', 'delete') && (
+   <button onClick={() => handleDelete(inv._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+   <Trash2 className="w-4 h-4" />
+   </button>
+ )}
+ </div>
  </td>
  </tr>
  );

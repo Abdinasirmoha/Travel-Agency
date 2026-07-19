@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { fetchCustomers, sendCustomerEmail } from '../api';
+import { usePermissions } from '../context/AuthContext';
+import { X as XIcon } from 'lucide-react';
 
 const TABS = [
   { id: 'profile', label: 'My Profile', icon: User, desc: 'Personal details & avatar' },
@@ -30,6 +32,7 @@ const TABS = [
 ];
 
 export default function Settings() {
+  const { hasPermission } = usePermissions();
   const [activeTab, setActiveTab] = useState('profile');
   const [isSaved, setIsSaved] = useState(false);
 
@@ -121,10 +124,22 @@ export default function Settings() {
   };
 
   const handleSave = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
+
+  if (!hasPermission('Settings', 'view')) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+          <XIcon className="w-8 h-8 text-red-600" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+        <p className="text-slate-500 max-w-md">You do not have permission to view the Settings module.</p>
+      </div>
+    );
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
